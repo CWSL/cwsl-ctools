@@ -31,6 +31,8 @@ import numpy as np
 #CDAT
 import cdms2
 
+__version__ = '$Id$'
+
 def cdscan(inputs, output):
     cmds = ['cdscan', '-x', output] + inputs
     subprocess.Popen(cmds).wait()
