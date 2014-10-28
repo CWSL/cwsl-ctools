@@ -52,7 +52,7 @@ function check_size {
     # need to use /short rather than jobfs for our large files.
     # Function takes no arguments.
     
-    filesize=`python ${CWSL_CTOOLS}/utils/filesize.py $in`
+    filesize=`python ${CWSL_CTOOLS}/utils/file_size.py $in`
     
     if [ "${filesize}" -gt "2147483648" ];
     then
@@ -123,11 +123,6 @@ fi
 which ncatted > /dev/null 2>&1
 if [ $? -ne 0 ] ; then
     echo "Can't find ncatted executable"
-    exit 1
-fi
-which filesize > /dev/null 2>&1
-if [ $? -ne 0 ] ; then
-    echo "Can't find filesize executable"
     exit 1
 fi
 
