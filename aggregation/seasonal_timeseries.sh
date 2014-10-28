@@ -17,9 +17,9 @@ version='$Revision: 1439 $'
 function usage {
     echo "USAGE: seas_vars.sh -a|(vname newvname) [-g gfile] start_year end_year seas_agg ifile ofile "
     echo "    -a:          Process all variables in the file "
+    echo "    -g:          grid netcdf file (optional)"
     echo "    vname:       Original input variable name "
     echo "    newvname:    Variable name for output file "
-    echo "    -g:          grid netcdf file (optional)"
     echo "    start_year:  Year to start the aggregation "
     echo "    end_year:    Year to end the aggregation "
     echo "    seas_agg:    The aggregation type to perform (can be one of: seasavg, seassum, seasmax, seasmin)"
@@ -36,7 +36,7 @@ function convert_input {
     extn=`expr match "${inbase}" '.*\.\(.*\)'`
     if [ $extn = 'xml' ] ; then
 	tmp_in=$SMALLTMP/xml_concat.$$.nc
-	python $CCT/processing/cdml_cat/xml_to_nc_mod.py None $in $tmp_in -s $start_year -e $end_year
+	python ${CWSL_CTOOLS}/utils/xml_to_nc.py None $in $tmp_in -s $start_year -e $end_year
 	in=$tmp_in
     fi
     
@@ -52,7 +52,7 @@ function check_size {
     # need to use /short rather than jobfs for our large files.
     # Function takes no arguments.
     
-    filesize=`filesize $in`
+    filesize=`python ${CWSL_CTOOLS}/utils/filesize.py $in`
     
     if [ "${filesize}" -gt "2147483648" ];
     then
