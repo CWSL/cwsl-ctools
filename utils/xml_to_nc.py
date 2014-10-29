@@ -249,7 +249,7 @@ if __name__ == '__main__':
             "  incat:\tCatalogue file to operate on\n"+\
             "  outfile:\tNetCDF file to output to"
 
-    parser = OptionParser(usage=usage, version=__version__)
+    parser = OptionParser(usage=usage)
     parser.add_option("-o", "--force", 
                       action="store_true", dest="force", default=False,
                       help="Force the overwrite of existing outputs")
