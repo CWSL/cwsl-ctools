@@ -1,16 +1,22 @@
 #!/bin/env python
 """
-SVN INFO: $Id: xml_to_nc_mod.py 1532 2014-09-04 04:31:14Z tae599 $
-Filename:    
-Author:      David Kent, ken244, David.Kent@csiro.au
-Description: 
-Input:       
-Output:      
+Authors: David Kent, Tim Erwin, Tim Bedin
 
-Copyright CSIRO, 2010
+Copyright 2014 CSIRO
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Converts a CDAT xml catalogue to a single netCDF file.
+
 """
-
-__version__ = '$Revision: 1532 $'
 
 import sys
 from optparse import OptionParser
@@ -24,8 +30,6 @@ if hasattr(cdms2, 'setNetcdfDeflateFlag'):
     cdms2.setNetcdfDeflateLevelFlag(0)
     cdms2.setNetcdfShuffleFlag(0)
 import cdtime
-
-import pdb
 
 
 ############
