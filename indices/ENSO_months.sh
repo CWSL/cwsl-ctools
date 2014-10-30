@@ -55,7 +55,7 @@ inbase=$(basename $sstfile)
 extn=$(expr match "${inbase}" '.*\.\(.*\)')
 if [ $extn = 'xml' ] ; then
     tmp_in=$temp_dir/xml_concat.$$.nc
-    python $CCT/processing/cdml_cat/xml_to_nc.py None $sstfile $tmp_in
+    python ${CWSL_CTOOLS}/utils/xml_to_nc.py None $sstfile $tmp_in
     sstfile=$tmp_in
 fi
 
