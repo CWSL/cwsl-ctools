@@ -1,12 +1,12 @@
 """
-Extract data from AWAP daily
+Extract data from gridded dataset, i.e. AWAP daily dataset
 """
 import os
 
 import numpy as np
 from scipy.io import netcdf
 
-from sdm.cod import CoD
+from .cod import CoD
 
 
 class AwapDailyData(object):

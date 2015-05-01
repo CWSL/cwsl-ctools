@@ -4,7 +4,6 @@ Helper program that manages CoD files
 y.wang@bom.gov.au
 """
 import os
-import argparse
 
 import numpy as np
 
@@ -80,20 +79,3 @@ class CoD(object):
         """ Given the model, scenario, region_type, season, predictant, locate the CoD file path and read its content
         """
         return CoD.read(self.get_cod_file_path(model, scenario, region_type, season, predictant))
-
-
-if __name__ == '__main__':
-    """ The main program is to print the full file path to a CoD file given the input parameters
-    """
-    ap = argparse.ArgumentParser(prog=os.path.basename(__file__))
-    ap.add_argument('-m', '--model', required=True, help='model name')
-    ap.add_argument('-c', '--scenario', required=False, help='scenario name, e.g. historical, rcp45, rcp85')
-    ap.add_argument('-r', '--region-type', required=True, help='pre-defined region type name, e.g. sea, sec, tas ...')
-    ap.add_argument('-s', '--season', required=True, help='season number, e.g. 1 (DJF), 2 (MAM), 3 (JJA), or 4 (SON)')
-    ap.add_argument('-p', '--predictand', required=True, help='predictand name, e.g. rain, tmax, tmin')
-    ap.add_argument('--base-dir', required=False,
-                    help='Base directory where CoD files are stored, default to the current working directory')
-
-    ns = ap.parse_args()
-
-    print CoD(ns.base_dir).get_cod_file_path(ns.model, ns.scenario, ns.region_type, ns.season, ns.predictand)

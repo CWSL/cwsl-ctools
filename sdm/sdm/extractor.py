@@ -4,9 +4,9 @@ from datetime import date, timedelta
 import numpy as np
 from scipy.io import netcdf
 
-from sdm.cod import CoD
-from sdm.mask import Mask
-from sdm.gridded import AwapDailyData
+from .cod import CoD
+from .mask import Mask
+from .gridded import AwapDailyData
 
 
 class GriddedExtractor(object):
@@ -15,10 +15,10 @@ class GriddedExtractor(object):
         self.mask_manager = Mask(base_dir=mask_base_dir, verbose=verbose)
         self.awap_manager = AwapDailyData(base_dir=gridded_base_dir, verbose=verbose)
 
-    def extract(self, model, scenario, region_type, season, predictant, region=None, cube=True):
-        cod_dates = self.cod_manager.read_cod(model, scenario, region_type, season, predictant)
+    def extract(self, model, scenario, region_type, season, predictand, region=None, cube=True):
+        cod_dates = self.cod_manager.read_cod(model, scenario, region_type, season, predictand)
         mask = self.mask_manager.read_mask(region or region_type)
-        data = self.awap_manager.read_data(predictant, cod_dates['adates'], mask)
+        data = self.awap_manager.read_data(predictand, cod_dates['adates'], mask)
 
         if cube:
             data, lat, lon = self.cubify(data, mask)
@@ -30,13 +30,13 @@ class GriddedExtractor(object):
     def extract_with_cod_file(self, cod_file_path, region=None, cube=True):
         _, _, season = os.path.basename(cod_file_path).split('_')
         p = os.path.dirname(os.path.dirname(cod_file_path))
-        predictant = os.path.basename(p)
+        predictand = os.path.basename(p)
         p = os.path.dirname(p)
         region_type = os.path.basename(p)
         p = os.path.dirname(p)
         model, scenario = os.path.basename(p).split('_')
 
-        return self.extract(model, scenario, region_type, season, predictant, region, cube=cube)
+        return self.extract(model, scenario, region_type, season, predictand, region, cube=cube)
 
     @staticmethod
     def cubify(data, mask):
@@ -64,7 +64,7 @@ class GriddedExtractor(object):
 
     @staticmethod
     def save_netcdf(filename, data, dates, lat, lon,
-                    model, scenario, region_type, season, predictant):
+                    model, scenario, region_type, season, predictand):
 
         min_day_components = CoD.calc_dates(np.min(dates))
         max_day_components = CoD.calc_dates(np.max(dates))
@@ -76,7 +76,7 @@ class GriddedExtractor(object):
 
         f = netcdf.netcdf_file(filename, 'w')
         f.title = 'Daily gridded climate series (%s, %s, %s, %s, %s)' % (
-        model, scenario, region_type, season, predictant)
+        model, scenario, region_type, season, predictand)
         f.institution = 'Bureau of Meteorology'
         f.source = 'Statistical Downscaling Model'
         f.history = 'Generated on %s' % date.today()
@@ -102,29 +102,13 @@ class GriddedExtractor(object):
         var_lon.standard_name = 'longitude'
 
         missing_value = 99999.9
-        var_data = f.createVariable(predictant, np.float32, ('time', 'lat', 'lon'))
+        var_data = f.createVariable(predictand, np.float32, ('time', 'lat', 'lon'))
         data = data.copy()
         data[np.where(np.isnan(data))] = missing_value
         var_data[:, :, :] = data
-        var_data.units = 'mm' if predictant == 'rain' else 'K'
-        var_data.long_name = predictant
+        var_data.units = 'mm' if predictand == 'rain' else 'K'
+        var_data.long_name = predictand
         var_data.missing_value = var_data._FillValue = missing_value
 
         f.close()
 
-
-if __name__ == '__main__':
-    data_extractor = GriddedExtractor(cod_base_dir=r'C:\Users\ywang\tmp\CMIP5_v2',
-                                      mask_base_dir=r'C:\Users\ywang\tmp\Masks',
-                                      gridded_base_dir=r'C:\Users\ywang\tmp\AWAP',
-                                      verbose=True)
-
-    data, dates, lat, lon = data_extractor.extract('ACCESS1.0', 'historical', 'tas', '2', 'tmin')
-
-    GriddedExtractor.save_netcdf('tmp.nc', data, dates, lat, lon,
-                                 'ACCESS1.0', 'historical', 'tas', '2', 'tmin')
-
-    data2, dates, lat, lon = data_extractor.extract_with_cod_file(
-        r'C:\Users\ywang\tmp\CMIP5_v2\ACCESS1.0_historical\tas\tmin\season_2\rawfield_analog_2')
-
-    np.testing.assert_equal(data, data2)
