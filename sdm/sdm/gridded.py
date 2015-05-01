@@ -1,5 +1,7 @@
 """
 Extract data from gridded dataset, i.e. AWAP daily dataset
+
+y.wang@bom.gov.au
 """
 import os
 

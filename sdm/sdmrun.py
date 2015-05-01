@@ -3,7 +3,26 @@ Command line interface to the Statistical Downscaling Model (SDM) package.
 """
 import os
 import sys
+from ConfigParser import ConfigParser
 import argparse
+
+from sdm import __version__
+from sdm.cod import CoD
+from sdm.extractor import GriddedExtractor
+
+
+def read_config(config_file):
+    if not config_file:
+        if 'USERPROFILE' in os.environ:  # Windows
+            config_file = os.path.join(os.environ['USERPROFILE'], '.sdm.cfg')
+        else:
+            config_file = os.path.join(os.environ['HOME'], '.sdm.cfg')
+
+    config = ConfigParser()
+    config.optionxform = str  # preserve case
+    config.read(config_file)
+
+    return config
 
 
 def main(args):
@@ -15,6 +34,13 @@ def main(args):
     ap.add_argument('-c', '--config-file',
                     required=False,
                     help='The configuration file, default to "$HOME/.sdm.cfg"')
+    ap.add_argument('-V', '--verbose',
+                    action='store_true',
+                    default=False,
+                    help='be more chatty')
+    ap.add_argument('-v', '--version',
+                    action='version',
+                    version='%s: v%s' % (ap.prog, __version__))
 
     subparsers = ap.add_subparsers(dest='sub_command',
                                    title='List of sub-commands',
@@ -24,35 +50,51 @@ def main(args):
     cod_getpath_parser = subparsers.add_parser('cod-getpath',
                                                help='get the full path to a CoD file')
 
-    cod_getpath_parser.add_argument('-m', '--model', required=True,
+    cod_getpath_parser.add_argument('-m', '--model',
+                                    required=True,
                                     help='model name')
-    cod_getpath_parser.add_argument('-c', '--scenario', required=False,
+    cod_getpath_parser.add_argument('-c', '--scenario',
+                                    required=False,
                                     help='scenario name, e.g. historical, rcp45, rcp85')
-    cod_getpath_parser.add_argument('-r', '--region-type', required=True,
+    cod_getpath_parser.add_argument('-r', '--region-type',
+                                    required=True,
                                     help='pre-defined region type name, e.g. sea, sec, tas ...')
-    cod_getpath_parser.add_argument('-s', '--season', required=True,
+    cod_getpath_parser.add_argument('-s', '--season',
+                                    required=True,
                                     help='season number, e.g. 1 (DJF), 2 (MAM), 3 (JJA), or 4 (SON)')
-    cod_getpath_parser.add_argument('-p', '--predictand', required=True,
+    cod_getpath_parser.add_argument('-p', '--predictand',
+                                    required=True,
                                     help='predictand name, e.g. rain, tmax, tmin')
-    cod_getpath_parser.add_argument('--base-dir', required=False,
-                                    help='Base directory where CoD files are stored, default to CWD')
 
     dxt_gridded_parser = subparsers.add_parser('dxt-gridded',
-                                               help='extract gridded data')
-    dxt_gridded_parser.add_argument('cod-file-path', help='full path to the CoD file')
-    dxt_gridded_parser.add_argument('-r', '--region', required=False,
-                                    help='The region where the data are to be extracted')
+                                               help='extract gridded data with the given cod file')
+    dxt_gridded_parser.add_argument('output_file',
+                                    help='output netCDF file name')
+    dxt_gridded_parser.add_argument('cod_file_path',
+                                    help='full path to the CoD file')
+    dxt_gridded_parser.add_argument('-r', '--region',
+                                    required=False,
+                                    help='the region where the data are to be extracted')
 
     ns = ap.parse_args(args)
 
-    if ns.sub_command == 'cod-getpath':
-        from sdm.cod import CoD
+    config = read_config(ns.config_file)
 
-        print CoD(ns.base_dir).get_cod_file_path(
+    if ns.sub_command == 'cod-getpath':
+        print CoD(config.get('dxt', 'cod_base_dir'), verbose=ns.verbose).get_cod_file_path(
             ns.model, ns.scenario, ns.region_type, ns.season, ns.predictand)
 
     elif ns.sub_command == 'dxt-gridded':
-        pass
+        gridded_extractor = GriddedExtractor(cod_base_dir=config.get('dxt', 'cod_base_dir'),
+                                             mask_base_dir=config.get('dxt', 'mask_base_dir'),
+                                             gridded_base_dir=config.get('dxt', 'gridded_base_dir'),
+                                             verbose=ns.verbose)
+
+        model, scenario, region_type, season, predictand = CoD.get_components_from_path(ns.cod_file_path)
+        data, dates, lat, lon = gridded_extractor.extract(model, scenario, region_type, season, predictand,
+                                                          ns.region)
+        GriddedExtractor.save_netcdf(ns.output_file, data, dates, lat, lon,
+                                     model, scenario, region_type, season, predictand)
 
 
 if __name__ == '__main__':

@@ -33,21 +33,37 @@ class CoD(object):
         }
 
     @staticmethod
+    def get_components_from_path(cod_file_path):
+        _, _, season = os.path.basename(cod_file_path).split('_')
+        p = os.path.dirname(os.path.dirname(cod_file_path))
+        predictand = os.path.basename(p)
+        p = os.path.dirname(p)
+        region_type = os.path.basename(p)
+        p = os.path.dirname(p)
+        fields = os.path.basename(p).split('_')
+        if len(fields) == 2:
+            model, scenario = fields
+        else:
+            model, scenario = fields[0], ''
+        
+        return model, scenario, region_type, season, predictand
+
+    @staticmethod
     def get_modsce(model, scenario):
         if model in ['NNR', 'AWAP'] or scenario in [None, '', 'VALID']:
             return model
         else:
             return model + '_' + scenario
 
-    def get_dirout(self, model, scenario, region_type, season, predictant):
+    def get_dirout(self, model, scenario, region_type, season, predictand):
         return os.path.join(self.base_dir or os.getcwd(),
                             CoD.get_modsce(model, scenario),
                             region_type,
-                            predictant,
+                            predictand,
                             'season_%s' % season)
 
-    def get_cod_file_path(self, model, scenario, region_type, season, predictant):
-        cod_file_path = os.path.join(self.get_dirout(model, scenario, region_type, season, predictant),
+    def get_cod_file_path(self, model, scenario, region_type, season, predictand):
+        cod_file_path = os.path.join(self.get_dirout(model, scenario, region_type, season, predictand),
                                      'rawfield_analog_%s' % season)
         if self.verbose:
             print 'cod file path: %s' % cod_file_path
@@ -75,7 +91,7 @@ class CoD(object):
             'edists': np.array(edists, dtype=float),
         }
 
-    def read_cod(self, model, scenario, region_type, season, predictant):
-        """ Given the model, scenario, region_type, season, predictant, locate the CoD file path and read its content
+    def read_cod(self, model, scenario, region_type, season, predictand):
+        """ Given the model, scenario, region_type, season, predictand, locate the CoD file path and read its content
         """
-        return CoD.read(self.get_cod_file_path(model, scenario, region_type, season, predictant))
+        return CoD.read(self.get_cod_file_path(model, scenario, region_type, season, predictand))

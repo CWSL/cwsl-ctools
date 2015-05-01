@@ -1,4 +1,8 @@
-import os
+"""
+Extractor for gridded data
+
+y.wang@bom.gov.au
+"""
 from datetime import date, timedelta
 
 import numpy as np
@@ -10,10 +14,12 @@ from .gridded import AwapDailyData
 
 
 class GriddedExtractor(object):
+
     def __init__(self, cod_base_dir=None, mask_base_dir=None, gridded_base_dir=None, verbose=False):
         self.cod_manager = CoD(base_dir=cod_base_dir, verbose=verbose)
         self.mask_manager = Mask(base_dir=mask_base_dir, verbose=verbose)
         self.awap_manager = AwapDailyData(base_dir=gridded_base_dir, verbose=verbose)
+        self.verbose = verbose
 
     def extract(self, model, scenario, region_type, season, predictand, region=None, cube=True):
         cod_dates = self.cod_manager.read_cod(model, scenario, region_type, season, predictand)
@@ -26,17 +32,6 @@ class GriddedExtractor(object):
             lat, lon = self.awap_manager.lat, self.awap_manager.lon
 
         return data, cod_dates['rdates'], lat, lon
-
-    def extract_with_cod_file(self, cod_file_path, region=None, cube=True):
-        _, _, season = os.path.basename(cod_file_path).split('_')
-        p = os.path.dirname(os.path.dirname(cod_file_path))
-        predictand = os.path.basename(p)
-        p = os.path.dirname(p)
-        region_type = os.path.basename(p)
-        p = os.path.dirname(p)
-        model, scenario = os.path.basename(p).split('_')
-
-        return self.extract(model, scenario, region_type, season, predictand, region, cube=cube)
 
     @staticmethod
     def cubify(data, mask):
