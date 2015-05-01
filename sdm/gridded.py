@@ -10,9 +10,13 @@ from sdm.cod import CoD
 
 
 class AwapDailyData(object):
-    def __init__(self, resolution='0.05', base_dir=None):
-        self.resolution = resolution
+
+    def __init__(self, base_dir=None, verbose=False):
+        self.resolution = '0.05'
+        self.lat = np.arange(-4450, -995, 5) / 100.0
+        self.lon = np.arange(11200, 15630, 5) / 100.0
         self.base_dir = base_dir or os.getcwd()
+        self.verbose = verbose
 
     def read_one_file(self, var_name, year, month):
         if var_name in ['rr', 'rain']:
@@ -27,7 +31,8 @@ class AwapDailyData(object):
                                  file_code,
                                  '%s_daily_%s.%04d%02d.nc' % (file_code, self.resolution, year, month))
 
-        print 'reading netcdf file: %s' % file_path
+        if self.verbose:
+            print 'reading netcdf file: %s' % file_path
         ncd_file = netcdf.netcdf_file(file_path)
         var = ncd_file.variables[var_code]
         data = var.data.copy()
