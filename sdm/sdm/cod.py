@@ -4,6 +4,7 @@ Helper program that manages CoD files
 y.wang@bom.gov.au
 """
 import os
+from datetime import datetime
 
 import numpy as np
 
@@ -33,6 +34,12 @@ class CoD(object):
         }
 
     @staticmethod
+    def format_dates(cod_dates, format_str='%Y-%m-%d'):
+        dates = [datetime.strptime(str(d), '%Y%m%d').date().strftime(format_str)
+                 for d in cod_dates + 19000000]
+        return np.array(dates)
+
+    @staticmethod
     def get_components_from_path(cod_file_path):
         _, _, season = os.path.basename(cod_file_path).split('_')
         p = os.path.dirname(os.path.dirname(cod_file_path))
@@ -45,7 +52,7 @@ class CoD(object):
             model, scenario = fields
         else:
             model, scenario = fields[0], ''
-        
+
         return model, scenario, region_type, season, predictand
 
     @staticmethod

@@ -14,7 +14,6 @@ from .gridded import AwapDailyData
 
 
 class GriddedExtractor(object):
-
     def __init__(self, cod_base_dir=None, mask_base_dir=None, gridded_base_dir=None, verbose=False):
         self.cod_manager = CoD(base_dir=cod_base_dir, verbose=verbose)
         self.mask_manager = Mask(base_dir=mask_base_dir, verbose=verbose)
@@ -61,17 +60,12 @@ class GriddedExtractor(object):
     def save_netcdf(filename, data, dates, lat, lon,
                     model, scenario, region_type, season, predictand):
 
-        min_day_components = CoD.calc_dates(np.min(dates))
-        max_day_components = CoD.calc_dates(np.max(dates))
-
-        sdate = date(min_day_components['yyyy'], min_day_components['mm'], min_day_components['dd'])
-        edate = date(max_day_components['yyyy'], max_day_components['mm'], max_day_components['dd']) + timedelta(1)
-
-        dates = (np.arange(np.datetime64(sdate), np.datetime64(edate)) - np.datetime64('1899-12-31')).astype('int')
+        dates = (np.array([np.datetime64(d) for d in CoD.format_dates(dates)])
+                 - np.datetime64('1899-12-31')).astype('int')
 
         f = netcdf.netcdf_file(filename, 'w')
         f.title = 'Daily gridded climate series (%s, %s, %s, %s, %s)' % (
-        model, scenario, region_type, season, predictand)
+            model, scenario, region_type, season, predictand)
         f.institution = 'Bureau of Meteorology'
         f.source = 'Statistical Downscaling Model'
         f.history = 'Generated on %s' % date.today()
