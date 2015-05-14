@@ -87,6 +87,16 @@ def days_in_month(year,month,cal=False):
     weekday,num_days = calendar.monthrange(year,month)
     return num_days
 
+def list_nobounds(cf, ids=False):
+    bnds = [v.bounds for v in cf.variables.values() if 'bounds' in v.attributes]
+    bnds += [a.bounds for a in cf.axes.values() if 'bounds' in a.attributes]
+    nodim = [vid for vid in cf.variables.keys() if cf[vid].getOrder() == '']
+    nonvar = bnds + nodim
+    if ids:
+        return [v for v, k in cf.variables.iteritems() if v not in nonvar]
+    else:
+        return [k for v, k in cf.variables.iteritems() if v not in nonvar]
+
 def main(var, incat, output,
          force,start_year=None,end_year=None):
     """Run the program.
@@ -116,7 +126,6 @@ def main(var, incat, output,
     cf = cdms2.open(incat)
 
     if var == 'None':
-        from cct.cct import list_nobounds
         vars = list_nobounds(cf, ids=True)
     else:
         vars = [var]
