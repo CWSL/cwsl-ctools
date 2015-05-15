@@ -173,8 +173,6 @@ if __name__ == '__main__':
                         help="Vertical level bounds of the region to extract from infile [default = all vetical levels].")
 
     args = parser.parse_args()
-    
-    pdb.set_trace()
 
     args.time_bounds = ':' if not args.time_bounds else args.time_bounds
     args.lon_bounds = ':' if not args.lon_bounds else args.lon_bounds
