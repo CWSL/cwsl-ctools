@@ -110,25 +110,8 @@ def main(var, infile, outfile,
          time_bounds=':',
          lon_bounds=':',
          lat_bounds=':',
-         level_bounds=':',
-         force_overwrite=False):
-    """Run the program.
-    
-    @param var: The variable to extract from the catalouge.
-    @type  var: string
-    @param input: single or list of input files
-    @type  input: list or string
-    @param output: File to output list of actual netCDF files to
-    @type  output: string
-    @param force: If True then existing files will be overwritten. If false then
-                  they will be skipped.
-    @type  force: boolean
-
-    """
-
-    # Get subset from catalogues
-    if not force_overwrite and os.access(outfile, os.F_OK):
-        return
+         level_bounds=':'):
+    """Run the program."""
 
     cf = cdms2.open(infile)
 
@@ -162,7 +145,6 @@ def main(var, infile, outfile,
     for att in cf.listglobal():
         setattr(cfout, att, cf.attributes[att])
 
-    #cf.close()
     cfout.close()
 
 
@@ -175,31 +157,33 @@ if __name__ == '__main__':
     description = 'Convert a CDAT xml catalogue to a single netCDF file and/or crop temporal and spatial dimensions'
     parser = argparse.ArgumentParser(description=description,
                                      epilog=extra_info,
-                                     argument_default=argparse.SUPPRESS,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument("variable", type=str, help="""Variable to extract. If 'all', all variables will be extracted.""")
     parser.add_argument("infile", type=str, help="Name of input netCDF file or cdscan xml catalogue file")
     parser.add_argument("outfile", type=str, help="Name of output netCDF file")
 
-    parser.add_argument("--time_bounds", type=str, nargs=2, metavar=('START_DATE', 'END_DATE'),default=':',
+    parser.add_argument("--time_bounds", type=str, nargs=2, metavar=('START_DATE', 'END_DATE'),
                         help="Bounds of the time period to extract from infile [default = all times]. Date format is YYYY-MM-DD.")
-    parser.add_argument("--lon_bounds", type=str, nargs=2, metavar=('WEST_LON', 'EAST_LON'), default=':',
+    parser.add_argument("--lon_bounds", type=float, nargs=2, metavar=('WEST_LON', 'EAST_LON'),
                         help="Longitude bounds of the region to extract from infile [default = all longitudes].")
-    parser.add_argument("--lat_bounds", type=str, nargs=2, metavar=('SOUTH_LAT', 'NORTH_LAT'), default=':',
+    parser.add_argument("--lat_bounds", type=float, nargs=2, metavar=('SOUTH_LAT', 'NORTH_LAT'),
                         help="Latitude bounds of the region to extract from infile [default = all latitudes].")
-    parser.add_argument("--level_bounds", type=str, nargs=2, metavar=('BOTTOM_LEVEL', 'TOP_LEVEL'), default=':',
+    parser.add_argument("--level_bounds", type=float, nargs=2, metavar=('BOTTOM_LEVEL', 'TOP_LEVEL'),
                         help="Vertical level bounds of the region to extract from infile [default = all vetical levels].")
 
-    parser.add_argument("-o", "--force", action="store_true", default=False,
-                        help="Force the overwrite of existing outputs")
-
     args = parser.parse_args()
+    
+    pdb.set_trace()
+
+    args.time_bounds = ':' if not args.time_bounds else args.time_bounds
+    args.lon_bounds = ':' if not args.lon_bounds else args.lon_bounds
+    args.lat_bounds = ':' if not args.lat_bounds else args.lat_bounds
+    args.level_bounds = ':' if not args.level_bounds else args.level_bounds
 
     main(args.variable, args.infile, args.outfile,
          time_bounds=args.time_bounds,
          lon_bounds=args.lon_bounds,
          lat_bounds=args.lat_bounds,
-         level_bounds=args.level_bounds,
-         force_overwrite=args.force)
+         level_bounds=args.level_bounds)
 
