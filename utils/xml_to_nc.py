@@ -115,7 +115,7 @@ def main(var, infile, outfile,
 
     cf = cdms2.open(infile)
 
-    if var == 'all':
+    if var == 'None':
         vars = list_nobounds(cf, ids=True)
     else:
         vars = [var]
@@ -159,7 +159,7 @@ if __name__ == '__main__':
                                      epilog=extra_info,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    parser.add_argument("variable", type=str, help="""Variable to extract. If 'all', all variables will be extracted.""")
+    parser.add_argument("variable", type=str, help="""Variable to extract. If 'None', all variables will be extracted.""")
     parser.add_argument("infile", type=str, help="Name of input netCDF file or cdscan xml catalogue file")
     parser.add_argument("outfile", type=str, help="Name of output netCDF file")
 
