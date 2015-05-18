@@ -32,33 +32,6 @@ if hasattr(cdms2, 'setNetcdfDeflateFlag'):
 import cdtime
 
 
-def recall_files(cf, var):
-    """Recall the input file."""
-
-    # Test to see if dmget exists..
-    ret = subprocess.Popen(['which', 'dmget']).wait()
-    if ret != 0:
-        return
-
-    # dmget exists so try and recall underlying files
-    all = []
-    v = cf[var]
-
-    if not v:
-        return
-
-    all.append(os.path.join(cf.datapath, 
-                            v.getPaths()[0][0]))
-
-    # Retrieve from tape
-    if all:
-        print ' '.join(['dmget', '-a'] + all)
-        ret = subprocess.Popen(['dmget', '-a'] + all).wait()
-        if ret:
-            sys.exit('Subprocess failed.')
-    return
-
-
 def list_nobounds(cf, ids=False):
     """Get the names of all the variables in a netCDF file."""
 
@@ -119,8 +92,6 @@ def main(var, infile, outfile,
         vars = list_nobounds(cf, ids=True)
     else:
         vars = [var]
-
-    recall_files(cf, vars[0])
 
     cfout = cdms2.createDataset(outfile)
     nwritten = 0
