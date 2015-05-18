@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
+set -o nounset
+set -o errexit
 
 ##############################################################################
 #
 # Description: Calculate the Niño 3.4 index from an
 #              input netCDF monthly time series.
-#              
+#
 # Modules Required: cct, cdo
 #
 # Authors:     Tim Bedin
@@ -33,7 +35,7 @@ trap cleanup EXIT
 usage () {
     echo "Calculate the Nino3.4 index from an input sst file."
     echo "$0 infile outfile startdate enddate"
-    echo 
+    echo
     echo "Outputs a monthly time series of NINO3.4 index between dates specified"
     echo "using a 30 year rolling climatology to calculate the sea surface temperature"
     echo "anomaly."
@@ -52,15 +54,6 @@ outputfile=$2
 startdate=$3
 enddate=$4
 
-# Collate the model data into one big file to work with
-inbase=$(basename $sstfile)
-extn=$(expr match "${inbase}" '.*\.\(.*\)')
-if [ $extn = 'xml' ] ; then
-    tmp_in=$temp_dir/xml_concat.$$.nc
-    python ${CWSL_CTOOLS}/processing/cdml_cat/xml_to_nc.py None $sstfile $tmp_in
-    sstfile=$tmp_in
-fi
-
 # Define tempfile locations.
 tempinput=$temp_dir/restrictedtime.$$.nc
 temp1=$temp_dir/clim_temp.$$.nc
@@ -75,6 +68,7 @@ years=$(cdo showyear ${tempinput})
 # isolate the decades in the source file, make an array of the decades
 IFS=' ' read -a yeararray <<< "$years"
 
+decades=""
 for year in "${yeararray[@]}"; do
     if [ $(( ${year} % 10 )) -eq 0 ]; then
         decades="$decades $year"
@@ -83,6 +77,10 @@ done
 
 IFS=' ' read -a decadearray <<< "$decades"
 num_decades=${#decadearray[@]}
+if [[ "$num_decades" -lt "4" ]]; then
+    echo "ERROR: Rolling climatology requires at least 4 decades to calculate climatology"
+    exit 1
+fi
 
 # Calculate climatology and anomalies for first decade, using first 3 decades as climatology
 cyr1=$((${decadearray[0]}+1))
@@ -108,6 +106,11 @@ for dcd in "${decadearray[@]:1:$((num_decades - 3))}"; do
 done
 
 # Calculate climatology and anomalies for second last decade, using last 3 decades as climatology
+echo These things are in the array:
+for decade in "${decadearray[@]}" ; do
+    echo "This decade: $decade"
+done
+
 cyr1=$((${decadearray[num_decades-4]}+1))
 cyr2=$((${decadearray[num_decades-1]}))
 cdo ymonmean -seldate,$cyr1"-1-1",$cyr2"-31-12" $tempinput $temp1
@@ -126,3 +129,4 @@ yearin=$(cdo showyear $tempinput)
 yearout=$(cdo showyear $outputfile)
 echo "years in = $yearin years out= $yearout"
 
+echo Output file name is "$outputfile"
