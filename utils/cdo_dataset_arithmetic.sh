@@ -37,21 +37,8 @@ function usage {
     exit 1
 }
 
-
-# Read the input arguments
-
-if [ $# -eq 4 ] ; then
-    operation=$1
-    infile1=$2
-    infile2=$3
-    outfile=$4
-else
-    usage
-fi
-
-
-for infile in $infile1 $infile2
-do
+function xmlcheck()  {
+    infile=$1
     if [ ! -f $infile ] ; then
         echo "Input file doesn't exist: " $infile
         usage
@@ -67,12 +54,33 @@ do
 
     inbase=`basename $infile`
     extn=`expr match "${inbase}" '.*\.\(.*\)'`
+    echo $extn
     if [ $extn = 'xml' ] ; then
         tmp_in=${temp_dir}/xml_concat.$$.nc
-        python ${CWSL_CTOOLS}/utils/xml_to_nc.py None $infile $tmp_in
+        python ${CWSL_CTOOLS}/utils/xml_to_nc.py None $infile $tmp_in 
         infile=$tmp_in
+    else
+        infile=$infile
     fi
-done
+}
+
+# Read the input arguments
+
+if [ $# -eq 4 ] ; then
+    operation=$1
+    infile1=$2
+    infile2=$3
+    outfile=$4
+else
+    usage
+fi
+
+xmlcheck $infile1
+infile1=$infile
+
+xmlcheck $infile2
+infile2=$infile
+
 
 # Execute the cdo function
         
