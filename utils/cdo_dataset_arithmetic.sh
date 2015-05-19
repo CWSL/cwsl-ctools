@@ -54,7 +54,6 @@ function xmlcheck()  {
 
     inbase=`basename $infile`
     extn=`expr match "${inbase}" '.*\.\(.*\)'`
-    echo $extn
     if [ $extn = 'xml' ] ; then
         tmp_in=${temp_dir}/xml_concat.$$.nc
         python ${CWSL_CTOOLS}/utils/xml_to_nc.py None $infile $tmp_in 
