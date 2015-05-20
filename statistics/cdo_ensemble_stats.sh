@@ -84,5 +84,5 @@ done
 
 # Execute the cdo function
 
-echo cdo ${statistic} ${checked_infiles[@]} $outfile
+cdo ${statistic} ${checked_infiles[@]} $outfile
 
