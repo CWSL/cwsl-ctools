@@ -62,9 +62,11 @@ def plot(title,variable,ifile,ofile):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Plot timeseries from NetCDF file')
     parser.add_argument('variable', help='variable name')
-    parser.add_argument('title', help='Plot Title')
     parser.add_argument('input', help='input file (nc)')
     parser.add_argument('output', help='output file (png)')
+    parser.add_argument('--title', help='Plot Title',
+                        default="Timeseries Plot")
+
     args = parser.parse_args()
 
     plot(args.title, args.variable, args.input, args.output)
