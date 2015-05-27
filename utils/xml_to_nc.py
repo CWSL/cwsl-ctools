@@ -19,8 +19,8 @@ temporal and spatial dimensions.
 
 """
 
-import os, sys, pdb
-import subprocess
+import os
+import sys
 import argparse
 
 import numpy as np
@@ -80,10 +80,8 @@ def check_valid_range(tvar):
 
 
 def main(var, infile, outfile,
-         time_bounds=':',
-         lon_bounds=':',
-         lat_bounds=':',
-         level_bounds=':'):
+         time_bounds, lon_bounds,
+         lat_bounds, level_bounds):
     """Run the program."""
 
     cf = cdms2.open(infile)
@@ -95,6 +93,7 @@ def main(var, infile, outfile,
 
     cfout = cdms2.createDataset(outfile)
     nwritten = 0
+
     for var in vars:
         v = cf(var, time=time_bounds, longitude=lon_bounds,
                latitude=lat_bounds, level=level_bounds)
@@ -146,9 +145,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     args.time_bounds = ':' if not args.time_bounds else args.time_bounds
-    args.lon_bounds = ':' if not args.lon_bounds else args.lon_bounds
-    args.lat_bounds = ':' if not args.lat_bounds else args.lat_bounds
-    args.level_bounds = ':' if not args.level_bounds else args.level_bounds
+    args.lon_bounds = ':' if not args.lon_bounds else tuple(args.lon_bounds)
+    args.lat_bounds = ':' if not args.lat_bounds else tuple(args.lat_bounds)
+    args.level_bounds = ':' if not args.level_bounds else tuple(args.level_bounds)
 
     main(args.variable, args.infile, args.outfile,
          time_bounds=args.time_bounds,
