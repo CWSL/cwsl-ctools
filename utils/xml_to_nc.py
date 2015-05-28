@@ -78,10 +78,55 @@ def check_valid_range(tvar):
         except:
             pass
 
+    
+def convert_lon(lon):
+    """Convert a single longitude value to a floating point number.
+
+    Input longitude can be string or float and in 
+      -135, 135W, 225 or 225E format. 
+
+    Output longitude lies in the range 0 <= lon <= 360.
+
+    """
+
+    lon = str(lon)
+    
+    if 'W' in lon:
+        deg_east = 360 - float(lon[:-1]) 
+    elif 'E' in lon:
+        deg_east = float(lon[:-1])
+    elif float(lon) < 0.0:
+        deg_east = 360 + float(lon)
+    else: 
+        deg_east = float(lon)
+    
+    assert 0 <= deg_east <= 360, "Longitude must lie between 0-360E"
+    
+    return deg_east
+    
+
+def convert_lat(lat):
+    """Convert a single latitude value to a floating point number.
+
+    Input latitude can be string or float and in -24 or 24S format. 
+
+    """
+
+    lat = str(lat)
+
+    if 'N' in lat.upper():
+        lat = float(lat[:-1])
+    elif 'S' in lat.upper():
+        lat = float('-'+lat[:-1])
+    else:
+        lat = float(lat)
+
+    return lat     
+
 
 def main(var, infile, outfile,
-         time_bounds, lon_bounds,
-         lat_bounds, level_bounds):
+         time_bounds=':', lon_bounds=':',
+         lat_bounds=':', level_bounds=':'):
     """Run the program."""
 
     cf = cdms2.open(infile)
@@ -93,6 +138,12 @@ def main(var, infile, outfile,
 
     cfout = cdms2.createDataset(outfile)
     nwritten = 0
+
+    lat_bounds = map(convert_lat, lat_bounds) if lat_bounds != ':' else lat_bounds
+    lon_bounds = map(convert_lon, lon_bounds) if lon_bounds != ':' else lon_bounds
+    if lon_bounds != ':':
+        assert lon_bounds[0] <= lon_bounds[1], \
+        "WEST_LON is not west of EAST_LON on a 0E - 360E interval"
 
     for var in vars:
         v = cf(var, time=time_bounds, longitude=lon_bounds,
@@ -135,10 +186,10 @@ if __name__ == '__main__':
 
     parser.add_argument("--time_bounds", type=str, nargs=2, metavar=('START_DATE', 'END_DATE'),
                         help="Bounds of the time period to extract from infile [default = all times]. Date format is YYYY-MM-DD.")
-    parser.add_argument("--lon_bounds", type=float, nargs=2, metavar=('WEST_LON', 'EAST_LON'),
-                        help="Longitude bounds of the region to extract from infile [default = all longitudes].")
-    parser.add_argument("--lat_bounds", type=float, nargs=2, metavar=('SOUTH_LAT', 'NORTH_LAT'),
-                        help="Latitude bounds of the region to extract from infile [default = all latitudes].")
+    parser.add_argument("--lon_bounds", type=str, nargs=2, metavar=('WEST_LON', 'EAST_LON'),
+                        help="Longitude bounds of the region to extract from infile. Can be -135, 135W, 225 or 225E format. [default = all longitudes].")
+    parser.add_argument("--lat_bounds", type=str, nargs=2, metavar=('SOUTH_LAT', 'NORTH_LAT'),
+                        help="Latitude bounds of the region to extract from infile. Can be in -46 or 46S format. [default = all latitudes].")
     parser.add_argument("--level_bounds", type=float, nargs=2, metavar=('BOTTOM_LEVEL', 'TOP_LEVEL'),
                         help="Vertical level bounds of the region to extract from infile [default = all vetical levels].")
 
