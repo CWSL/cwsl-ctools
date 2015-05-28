@@ -141,6 +141,10 @@ def main(var, infile, outfile,
 
     lat_bounds = map(convert_lat, lat_bounds) if lat_bounds != ':' else lat_bounds
     lon_bounds = map(convert_lon, lon_bounds) if lon_bounds != ':' else lon_bounds
+    if lon_bounds != ':':
+        assert lon_bounds[0] <= lon_bounds[1], \
+        "WEST_LON is not west of EAST_LON on a 0E - 360E interval"
+
     for var in vars:
         v = cf(var, time=time_bounds, longitude=lon_bounds,
                latitude=lat_bounds, level=level_bounds)
@@ -182,7 +186,7 @@ if __name__ == '__main__':
 
     parser.add_argument("--time_bounds", type=str, nargs=2, metavar=('START_DATE', 'END_DATE'),
                         help="Bounds of the time period to extract from infile [default = all times]. Date format is YYYY-MM-DD.")
-    parser.add_argument("--lon_bounds", type=float, nargs=2, metavar=('WEST_LON', 'EAST_LON'),
+    parser.add_argument("--lon_bounds", type=str, nargs=2, metavar=('WEST_LON', 'EAST_LON'),
                         help="Longitude bounds of the region to extract from infile. Can be -135, 135W, 225 or 225E format. [default = all longitudes].")
     parser.add_argument("--lat_bounds", type=str, nargs=2, metavar=('SOUTH_LAT', 'NORTH_LAT'),
                         help="Latitude bounds of the region to extract from infile. Can be in -46 or 46S format. [default = all latitudes].")
