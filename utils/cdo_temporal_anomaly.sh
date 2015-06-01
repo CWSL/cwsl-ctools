@@ -23,7 +23,7 @@
 #############################################################################
 
 function usage {
-    echo "Calculate anomaly."
+    echo "Temporal anomaly."
     echo " "
     echo "USAGE: bash $0 [-b clim_bounds] [-t timescale] infile outfile"
     echo "   clim_bounds:  Time bounds for the climatology used to calculate the anomaly timeseries." 
