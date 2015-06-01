@@ -109,6 +109,6 @@ else
 fi
 
 # Calculate the anomaly
-echo ${subtractor} $infile -${averager} ${clim_file} $outfile
+
 cdo ${subtractor} $infile -${averager} ${clim_file} $outfile
 
