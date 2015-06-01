@@ -23,7 +23,7 @@
 #############################################################################
 
 function usage {
-    echo "Calculate anomaly."
+    echo "Temporal anomaly."
     echo " "
     echo "USAGE: bash $0 [-b clim_bounds] [-t timescale] infile outfile"
     echo "   clim_bounds:  Time bounds for the climatology used to calculate the anomaly timeseries." 
@@ -105,8 +105,7 @@ fi
 if [ -z "${clim_bounds}" ]; then 
     clim_file=$infile 
 else 
-    clim_file=${temp_dir}/temp_clim.nc
-    cdo seldate,${clim_bounds} $infile ${clim_file} 
+    clim_file="-seldate,${clim_bounds} $infile" 
 fi
 
 # Calculate the anomaly
