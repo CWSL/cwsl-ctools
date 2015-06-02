@@ -97,6 +97,5 @@ case $gridname in
 esac
 
 # Execute the cdo function
-        
-cdo ${method},$cdogrid $infile $outfile
+cdo -O ${method},$cdogrid $infile $outfile
 

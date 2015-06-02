@@ -53,8 +53,8 @@ function xmlcheck()  {
     }
     trap cleanup EXIT
 
-    inbase=`basename $infile`
-    extn=`expr match "${inbase}" '.*\.\(.*\)'`
+    inbase=$(basename $infile)
+    extn=$(expr match "${inbase}" '.*\.\(.*\)')
     if [ $extn = 'xml' ] ; then
         tmp_in=${temp_dir}/xml_concat.$$.nc
         python ${CWSL_CTOOLS}/utils/xml_to_nc.py None $infile $tmp_in 
@@ -70,7 +70,7 @@ function xmlcheck()  {
 if [ $# -ge 4 ] ; then
     inargs=( "$@" )
     statistic=${inargs[0]}
-    infiles=${inargs[@]:1:`expr $# - 2`}
+    infiles=${inargs[@]:1:$(expr $# - 2)}
     outfile=${inargs[@]: -1}
 else
     usage
@@ -84,5 +84,4 @@ done
 
 # Execute the cdo function
 
-cdo ${statistic} ${checked_infiles[@]} $outfile
-
+cdo -O ${statistic} ${checked_infiles[@]} $outfile
