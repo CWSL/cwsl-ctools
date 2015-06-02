@@ -72,5 +72,5 @@ fi
 
 # Execute the cdo function
 
-cdo ${method} $infile $outfile
+cdo -O ${method} $infile $outfile
 

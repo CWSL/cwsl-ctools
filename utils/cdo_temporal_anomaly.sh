@@ -110,5 +110,5 @@ fi
 
 # Calculate the anomaly
 
-cdo ${subtractor} $infile -${averager} ${clim_file} $outfile
+cdo -O ${subtractor} $infile -${averager} ${clim_file} $outfile
 

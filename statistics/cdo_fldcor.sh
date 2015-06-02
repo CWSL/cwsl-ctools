@@ -80,5 +80,5 @@ infile2=$infile
 
 # Execute the cdo function
         
-cdo fldcor $infile1 $infile2 $outfile
+cdo -O fldcor $infile1 $infile2 $outfile
 
