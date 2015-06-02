@@ -80,5 +80,5 @@ infile2=$infile
 
 # Execute the cdo function
         
-cdo timcor $infile1 $infile2 $outfile
+cdo -O timcor $infile1 $infile2 $outfile
 

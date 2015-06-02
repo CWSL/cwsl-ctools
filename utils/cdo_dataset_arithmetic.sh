@@ -83,5 +83,5 @@ infile2=$infile
 
 # Execute the cdo function
         
-cdo ${operation} $infile1 $infile2 $outfile
+cdo -O ${operation} $infile1 $infile2 $outfile
 
