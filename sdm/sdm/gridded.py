@@ -48,7 +48,8 @@ class AwapDailyData(object):
         date_components = CoD.calc_dates(adates)
 
         idx_mask = np.where(mask.reshape(mask.size) != 0)[0]
-        ret = np.full((adates.size, idx_mask.size), np.NaN)
+        ret = np.empty((adates.size, idx_mask.size))
+        ret[:] = np.NaN
 
         for yyyymm in sorted(set(date_components['yyyymm'])):
             data = self.read_one_file(var_name, yyyymm / 100, yyyymm % 100)
