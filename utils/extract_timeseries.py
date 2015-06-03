@@ -7,17 +7,20 @@ data and a corresponding array of ISO strings.
 """
 
 import argparse
+import re
 import json
 import sys
+import datetime as dt
 
-import netCDF4 as nc4
+import scipy.io.netcdf as nc
 
 
 def main(args):
     """ Extract a JSON timeseries from a netCDF file."""
 
     # Open the netCDF file
-    input_file = nc4.Dataset(args.infile, 'r')
+    input_file = nc.netcdf_file(args.infile, 'r',
+                                mmap=False)
 
     # Grab the variable
     input_var = input_file.variables[args.varname]
@@ -35,13 +38,27 @@ def main(args):
 
     # Extract the associated times
     time_var = input_file.variables["time"]
-    output_times = nc4.num2date(time_var[:], time_var.units,
-                                time_var.calendar)
+
+    # This is a little brittle - this extraction makes an
+    # assumption about the use of a standard calendar.
+    units_re = r"^(?P<unit>\S+) since (?P<year>\d+)-(?P<month>\d+)-(?P<day>\d+).+$"
+
+    match_dict = re.match(units_re, time_var.units).groupdict()
+    start_date = dt.date(int(match_dict["year"]), int(match_dict["month"]),
+                         int(match_dict["day"]))
+    
+    if match_dict["unit"] != "days":
+        raise Exception("Time unit: {} not understood"
+                        .format(match_dict["unit"]))
+    if time_var.calendar != "standard":
+        print("WARNING: calendar {} is not standard. JSON date output may be incorrect"
+              .format(time_var.calendar))
+    
+    output_times = map(lambda date: start_date + dt.timedelta(days=date),
+                       time_var)
+
     output_strings = [datething.isoformat()
                       for datething in output_times]
-
-    # Close the netCDF file
-    input_file.close()
 
     # Write it out using json.dumps
     output = {"times": output_strings,
@@ -50,6 +67,8 @@ def main(args):
     with open(args.outfile, 'w') as output_file:
         output_file.write(json.dumps(output))
 
+    # Close the netCDF file
+    input_file.close()
 
 
 if __name__ == "__main__":
