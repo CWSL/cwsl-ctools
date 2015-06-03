@@ -50,7 +50,9 @@ class GriddedExtractor(object):
         mask_subsetted = mask[idx_lat_min: idx_lat_max, idx_lon_min: idx_lon_max]
         idx_mask_subsetted = np.where(mask_subsetted.reshape(mask_subsetted.size) != 0)[0]
 
-        ret = np.full((data.shape[0], mask_subsetted.size), np.NaN)
+        ret = np.empty((data.shape[0], mask_subsetted.size))
+        ret[:] = np.NaN
+
         ret[:, idx_mask_subsetted] = data
         ret = ret.reshape((data.shape[0], mask_subsetted.shape[0], mask_subsetted.shape[1]))
 
