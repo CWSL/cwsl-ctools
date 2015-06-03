@@ -54,7 +54,7 @@ def main(args):
         print("WARNING: calendar {} is not standard. JSON date output may be incorrect"
               .format(time_var.calendar))
     
-    output_times = map(lambda date: start_date + dt.timedelta(days=date),
+    output_times = map(lambda date: start_date + dt.timedelta(days=int(date)),
                        time_var)
 
     output_strings = [datething.isoformat()
