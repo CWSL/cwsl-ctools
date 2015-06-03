@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Command line interface to the Statistical Downscaling Model (SDM) package.
 """
