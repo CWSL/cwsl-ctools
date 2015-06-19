@@ -1,4 +1,4 @@
-""" Class to read in the COD file date strings. """
+""" Contains the CodFile class."""
 
 import datetime as dt
 
@@ -6,6 +6,7 @@ import numpy as np
 
 
 class CodFile(object):
+    """ Class that allows access to a change-of-date file dates."""
     
     def __init__(self, filename):
         
