@@ -45,7 +45,7 @@ def main(args):
               .format(time_var.calendar))
 
     start_time = start_date + dt.timedelta(days=int(time_var[0]))
-    end_time = start_date + dt.timedelta(days=int(time_var[0]))
+    end_time = start_date + dt.timedelta(days=int(time_var[-1]))
     time_bounds = [start_time.isoformat(), end_time.isoformat()]
 
     # Test that the required x and y fits.
