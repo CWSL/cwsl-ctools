@@ -18,6 +18,7 @@ class CodFile(object):
 
     @property
     def base_dates(self):
+        """ These are the dates of the future time series. """
         if self._raw_data is None:
             self.read_data()
 
@@ -26,6 +27,7 @@ class CodFile(object):
 
     @property
     def projected_dates(self):
+        """ These are dates from the historical record that are similar to dates in the projected time series."""
         if self._raw_data is None:
             self.read_data()
 
@@ -51,4 +53,4 @@ class CodFile(object):
         month_part = int(datestring[-4:-2])
         year_part = int(datestring[:-4]) + 1900
 
-        return(dt.date(year_part, month_part, date_part))
+        return(dt.datetime(year_part, month_part, date_part))
