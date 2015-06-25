@@ -17,12 +17,12 @@ from cod_file import CodFile
 def main(args):
 
     # Extract the required values from the cod file.
-    awap_pattern = "/local/ep1_1/rr_calib/rr_calib_daily_0.05*.nc"
+    awap_pattern = "/local/ep1_1/data/staging_data/AWAP/daily_0.05/rr_calib/rr_calib_daily_0.05*.nc"
     input_awap = nc4.MFDataset(awap_pattern, aggdim="time")
     in_var = input_awap.variables["rr"]
 
-    print("Input shape is: {}"
-          .format(in_var.shape))
+    #print("Input shape is: {}"
+    #      .format(in_var.shape))
 
     lat_var = input_awap.variables["lat"]
     lon_var = input_awap.variables["lon"]
@@ -65,7 +65,7 @@ def get_index(value, nc_var):
     var_range = nc_var[-1] - nc_var[0]
     step_size = var_range / n_steps
 
-    print("step_size is {}".format(step_size))
+    #print("step_size is {}".format(step_size))
 
     change = float(value) - nc_var[0]
     index = int(round(change / step_size))
@@ -80,8 +80,8 @@ def calculate_time_index(datething, nc_time):
     time_range = nc_time[-1] - nc_time[0]
     each_step = time_range / num_steps
     step = int(round(each_step))
-    print(each_step)
-    print(step)
+    #print(each_step)
+    #print(step)
 
     axis_numbers = nc4.date2num(datething, nc_time.units, nc_time.calendar)
 
