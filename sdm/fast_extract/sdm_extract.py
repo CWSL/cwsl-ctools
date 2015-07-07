@@ -84,7 +84,7 @@ def filter_timeseries(timeseries, var_name):
     # (temps are in Kelvin)
     if var_name in ["tmax", "tmin"]:
         num_bad += sum(output_ts < 100.0)
-        output_ts = output_ts[output_ts > 100.0]
+        output_ts = output_ts[output_ts >= 100.0]
 
     return num_bad, output_ts
 
