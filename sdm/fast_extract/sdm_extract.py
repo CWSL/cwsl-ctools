@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" This is a specialised script to extract a time series from SDM CoD files.
+""" This is a specialised script to extract a time series or histogram from SDM CoD files.
 
 It dumps straight to JSON format, and doesn't write out a netCDF file.
 
@@ -27,9 +27,9 @@ def main(args):
 
     """
 
-    var_dict = {"rain": ("rr_calib", "rr", "rainfall"),
-                "tmin": ("tmin", "tmin", "minimum temperature"),
-                "tmax": ("tmax", "tmax", "maximum temperature")}
+    var_dict = {"rain": ("rr_calib", "rr", "rr"),
+                "tmin": ("tmin", "tmin", "tmin"),
+                "tmax": ("tmax", "tmax", "tmax")}
 
     this_var = var_dict[args.variable]
 
@@ -58,10 +58,13 @@ def main(args):
     # Now pull out the required values.
     outts = base_ts[indices]
 
+    # Filter bad values from the time series.
+    num_missing, outts = filter_time_series(outts, this_var[1])
+
     if args.output_type == "timeseries":
-        output = write_timeseries(cod, this_var[2], outts)
+        output = write_timeseries(cod, this_var[2], outts, num_missing)
     elif args.output_type == "histogram":
-        output = write_histogram(cod, this_var[2], outts)
+        output = write_histogram(cod, this_var[2], outts, num_missing)
     else:
         raise Exception("output_type: {} not understood"
                         .format(args.output_type))
@@ -69,18 +72,37 @@ def main(args):
     with open(args.outfile, 'w') as output_file:
         output_file.write(json.dumps(output))
 
-def write_timeseries(change_of_date, variable_name, timeseries):
+def filter_timeseries(timeseries, var_name):
+    """ Filter out invalid values in the timeseries."""
+
+    # Filter out any masked values (missings)
+    num_bad = len(timeseries) - timeseries.count()
+    # Return only timeseries values that have Mask == False
+    output_ts = timeseries[np.ma.getmask(timeseries) == False]
+
+    # Remove anomalously low values from temperature fields.
+    # (temps are in Kelvin)
+    if var_name in ["tmax", "tmin"]:
+        num_bad += sum(output_ts < 100.0)
+        output_ts = output_ts[output_ts > 100.0]
+
+    return num_bad, output_ts
+
+def write_timeseries(change_of_date, variable_name,
+                     timeseries, missing_vals):
     """ Create an output dictionary in timeseries form. """
 
     output_strings = [datething.isoformat()
                       for datething in change_of_date.base_dates]
 
     output = {"times": output_strings,
-              variable_name: timeseries.tolist()}
+              variable_name: timeseries.tolist(),
+              "filtered_values": missing_vals}
 
     return output
 
-def write_histogram(change_of_date, variable_name, timeseries, bins):
+def write_histogram(change_of_date, variable_name,
+                    timeseries, bins, missing_vals):
     """ Create an output dictionary in timeseries form. """
 
     # Use the numpy histogram calculator.
@@ -97,7 +119,8 @@ def write_histogram(change_of_date, variable_name, timeseries, bins):
               "counts": counts.tolist(),
               "num_entries": len(timeseries),
               "time_bounds": [change_of_date.base_dates[0].isoformat(),
-                              change_of_date.base_dates[-1].isoformat()}
+                              change_of_date.base_dates[-1].isoformat()],
+              "filtered_values": missing_vals}
 
     return output
 
