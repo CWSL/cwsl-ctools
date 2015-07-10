@@ -47,6 +47,9 @@ def main(args):
     x_val = get_index(args.longitude, lon_var)
     base_ts = in_var[:, y_val, x_val]
 
+    # Ensure the base timeseries is a masked array.
+    base_ts = np.ma.masked_array(base_ts)
+
     # Load in the CoD file.
     cod = CodFile(args.cod_file)
 
@@ -59,12 +62,12 @@ def main(args):
     outts = base_ts[indices]
 
     # Filter bad values from the time series.
-    num_missing, outts = filter_time_series(outts, this_var[1])
+    out_dates, out_values, num_missing = filter_timeseries(cod.base_dates, outts, this_var[1])
 
     if args.output_type == "timeseries":
-        output = write_timeseries(cod, this_var[2], outts, num_missing)
+        output = write_timeseries(out_dates, this_var[2], out_values, num_missing)
     elif args.output_type == "histogram":
-        output = write_histogram(cod, this_var[2], outts, int(args.bins), num_missing)
+        output = write_histogram(out_dates, this_var[2], out_values, int(args.bins), num_missing)
     else:
         raise Exception("output_type: {} not understood"
                         .format(args.output_type))
@@ -72,28 +75,35 @@ def main(args):
     with open(args.outfile, 'w') as output_file:
         output_file.write(json.dumps(output))
 
-def filter_timeseries(timeseries, var_name):
+def filter_timeseries(date_list, timeseries, var_name):
     """ Filter out invalid values in the timeseries."""
 
-    # Filter out any masked values (missings)
     num_bad = len(timeseries) - timeseries.count()
-    # Return only timeseries values that have Mask == False
-    output_ts = timeseries[np.ma.getmask(timeseries) == False]
+
+    # Filter out any masked (missing) values.
+    to_keep = np.ma.getmaskarray(timeseries) == False
+
+    output_ts = timeseries[to_keep]
+    output_dates = date_list[to_keep]
 
     # Remove anomalously low values from temperature fields.
     # (temps are in Kelvin)
     if var_name in ["tmax", "tmin"]:
         num_bad += sum(output_ts < 100.0)
-        output_ts = output_ts[output_ts >= 100.0]
 
-    return num_bad, output_ts
+        to_keep = output_ts >= 100.0
+        output_ts = output_ts[to_keep]
+        output_dates = output_date[to_keep]
 
-def write_timeseries(change_of_date, variable_name,
+    return output_dates, output_ts, num_missing
+
+
+def write_timeseries(date_list, variable_name,
                      timeseries, missing_vals):
     """ Create an output dictionary in timeseries form. """
 
     output_strings = [datething.isoformat()
-                      for datething in change_of_date.base_dates]
+                      for datething in date_list]
 
     output = {"times": output_strings,
               variable_name: timeseries.tolist(),
@@ -101,7 +111,7 @@ def write_timeseries(change_of_date, variable_name,
 
     return output
 
-def write_histogram(change_of_date, variable_name,
+def write_histogram(date_list, variable_name,
                     timeseries, bins, missing_vals):
     """ Create an output dictionary in timeseries form. """
 
@@ -118,8 +128,8 @@ def write_histogram(change_of_date, variable_name,
     output = {"bins": outbins,
               "counts": counts.tolist(),
               "num_entries": len(timeseries),
-              "time_bounds": [change_of_date.base_dates[0].isoformat(),
-                              change_of_date.base_dates[-1].isoformat()],
+              "time_bounds": [date_list[0].isoformat(),
+                              date_list[-1].isoformat()],
               "filtered_values": int(missing_vals)}
 
     return output
