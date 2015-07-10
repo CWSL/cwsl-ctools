@@ -64,7 +64,7 @@ def main(args):
     if args.output_type == "timeseries":
         output = write_timeseries(cod, this_var[2], outts, num_missing)
     elif args.output_type == "histogram":
-        output = write_histogram(cod, this_var[2], outts, num_missing)
+        output = write_histogram(cod, this_var[2], outts, int(args.bins), num_missing)
     else:
         raise Exception("output_type: {} not understood"
                         .format(args.output_type))
@@ -97,7 +97,7 @@ def write_timeseries(change_of_date, variable_name,
 
     output = {"times": output_strings,
               variable_name: timeseries.tolist(),
-              "filtered_values": missing_vals}
+              "filtered_values": int(missing_vals)}
 
     return output
 
@@ -120,7 +120,7 @@ def write_histogram(change_of_date, variable_name,
               "num_entries": len(timeseries),
               "time_bounds": [change_of_date.base_dates[0].isoformat(),
                               change_of_date.base_dates[-1].isoformat()],
-              "filtered_values": missing_vals}
+              "filtered_values": int(missing_vals)}
 
     return output
 
