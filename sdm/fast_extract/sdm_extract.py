@@ -84,7 +84,7 @@ def filter_timeseries(date_list, timeseries, var_name):
     to_keep = np.ma.getmaskarray(timeseries) == False
 
     output_ts = timeseries[to_keep]
-    output_dates = date_list[to_keep]
+    output_dates = np.array(date_list)[to_keep]
 
     # Remove anomalously low values from temperature fields.
     # (temps are in Kelvin)
@@ -93,9 +93,9 @@ def filter_timeseries(date_list, timeseries, var_name):
 
         to_keep = output_ts >= 100.0
         output_ts = output_ts[to_keep]
-        output_dates = output_date[to_keep]
+        output_dates = output_dates[to_keep]
 
-    return output_dates, output_ts, num_missing
+    return output_dates, output_ts, num_bad
 
 
 def write_timeseries(date_list, variable_name,
