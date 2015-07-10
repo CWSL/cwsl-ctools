@@ -27,7 +27,7 @@ def main(args):
 
     """
 
-    var_dict = {"rain": ("rr_calib", "rr", "rr"),
+    var_dict = {"rain": ("rr_calib", "rr", "rain"),
                 "tmin": ("tmin", "tmin", "tmin"),
                 "tmax": ("tmax", "tmax", "tmax")}
 
