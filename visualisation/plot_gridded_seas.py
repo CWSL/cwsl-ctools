@@ -128,7 +128,8 @@ if __name__ == '__main__':
     # This is only necessary when a cmap name, but not ticks are given.
     # The dummy_plot is required for the maximum and minumum.
     
-    dummy_plot = Plot.from_file(inFileList[0], variable, args.region, units=args.units)
+    dummy_plot = Plot.from_file(inFileList[0], variable, args.region, units=args.units,
+                                convert_units=conv_units)
     colourmap = colour_utils.process_cmap(args.colourmap, dummy_plot,
                                           tick_string=args.ticks)
 
