@@ -28,7 +28,7 @@ function cleanup() {
 trap cleanup EXIT
 
 # Create the field averaged timeseries.
-cdo -s -fldmean -sellonlatbox,-170,-120,5,-5 -mergetime "$infilenames" "$outfilename"
+cdo -s -fldmean -sellonlatbox,-170,-120,5,-5 -mergetime "$infilenames" "$temp"
 
 # Transform into an anomaly to calculate the index.
 cdo -s -sub "$temp"  -timmean "$temp" "$outfilename"
