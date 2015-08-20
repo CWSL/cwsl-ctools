@@ -37,7 +37,7 @@ def main(input_list, outfile_name):
         dates = nc4.num2date(time_var[:], time_var.units, time_var.calendar)
         data_series = in_var[:,0,0]
 
-        this_dict["times"] = [timestep.isoformat() for timestep in dates]
+        this_dict["times"] = [str(timestep) for timestep in dates]
         this_dict["nino34"] = data_series.tolist()
 
         output_dict[model_name] = this_dict
