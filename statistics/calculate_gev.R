@@ -1,5 +1,5 @@
 # Program: 
-#   calc_GEV,seasonal.R
+#   calculate_gev.R
 #
 # Author:
 #   Louise.Wilson@csiro.au
