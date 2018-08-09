@@ -24,7 +24,7 @@
 # module load R/2.15.1-gcc or R/2.13.1-gcc
 # module load cdo/1.5.4
 #
-# Updates | By | Description
+# Creation | By | Description
 # --------+----+------------
 # 18 Feb 2013 | Louise Wilson | All seasons
 #
